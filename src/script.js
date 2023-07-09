@@ -1,155 +1,157 @@
 
-var timeLimit = 60;
+var timeLimit = 10;
 var alphabet = 'abcdefghijklmnopqrstuvwxyz';
 
-function QuizObject(question,answers,correctAnswer,answerResponses)
+var timerElement = document.querySelector("#timer");
+var questionBox = document.querySelector("#question-box");
+var questionText = document.querySelector('#question-text');
+var answerBox =  document.querySelector("#answer-box");
+var answerList =  document.querySelector("#answer-list");
+var startButton = document.querySelector('#start-button');
+var scoreElement = document.querySelector('#score');
+var timeLeft = 1000;
+
+var currentScore = 0;
+
+
+function GameInformation(score,name)
 {
+this.score = score;
+this.name = name;
+}
 
-this.question = question;
-this.answers = answers;
-this.correctAnswer = correctAnswer;
-this.answerResponses = answerResponses;
+var gameInformation = [];
+function Question(question,answers,correctAnswer) 
+	{
+		this.question = question;
+		this.answers = answers;
+		this.correctAnswer = correctAnswer;
+	}
 
+
+var defaultQuestion = new Question("what is javascript?",["A scripting language","A programming language","A coffee recipe."],0);
+
+
+var questions = [defaultQuestion,new Question("What isnt a primitive",["boolean","object","number","string"],1),new Question("Javascript runs in...",["the browser","a server","both!"],2)]
+
+
+var currentQuestion = questions[0];
+function getRandomNumber(max,min)
+{
+return Math.floor(Math.random() * (max - min)) + min;
 
 }
 
-
-var firstQuestion = new QuizObject("Who is the coolest.",
-["me","me","you","we"],0,["yes","no","no","no"]
-);
-
-
-var secondQuestion = new QuizObject("Who is the coolest.",
-["me","me","you","we"],0,["yes","no","no","no"]
-);
-
-
-var thirdQuestion = new QuizObject("Who is the coolest.",
-["me","me","you","we"],0,["yes","no","no","no"]
-);
-
-var questions = [firstQuestion,secondQuestion,thirdQuestion];
-
-var seenQuestions = []
+function updateTimerElement()
+{
+timerElement.textContent = timeLimit;
+}
 
 function getNextQuestion()
 {
-let num = 0;
+console.log(questions);
+return questions[getRandomNumber(0,questions.length -1)];
+}
 
+function clearPopulationUi()
+{
+questionText.textContent = "";
+    while (answerList.firstChild) {
+        answerList.removeChild(answerList.firstChild);
+    }
+}
 
-while(seenQuestions.includes(num))
+function populateQuestionUi(givenQuestion)
+{
+clearPopulationUi();
+	currentQuestion = givenQuestion;
+	questionText.textContent = givenQuestion.question;
+	for(let i = 0; i < givenQuestion.answers.length; i++)
+
 	{
-
-num = getRandomNumber(0,questions.length -1);
+		answerList.appendChild(createAnswerButton(i))
 	}
 
-seenQuestions.push(num);
-return num;
+
 
 }
 
-function getRandomNumber(min,max)
+function createAnswerButton(index)
 {
-return Math.floor(Math.random() * (max - min + 1) + min);
+var element = document.createElement('button');
+element.setAttribute('id',"answer-button");
+element.textContent = currentQuestion.answers[index];
+element.setAttribute('index',index);
+	element.getAttribute('index');
+element.addEventListener('click',checkAnswer);
+return element;
 }
 
-function updateTimeLimit()
+
+function correctAnswer()
 {
-document.querySelector('h1').textContent = timeLimit;
+console.log("correct");
+	currentScore+=10;
+}
+
+function wrongAnswer()
+{
+console.log("wrong");
+currentScore -=5;
+}
+
+function updateScore()
+{
+scoreElement.textContent = "Score: " + currentScore;
+}
+
+function checkAnswer(event)
+{
+console.log(currentQuestion.correctAnswer);
+console.log(event.target.getAttribute('index'));
+
+if(currentQuestion.correctAnswer == event.target.getAttribute('index'))
+	{
+correctAnswer();
+	}
+	else
+	{
+
+		wrongAnswer();
+
+	}
+updateScore();
+populateQuestionUi(getNextQuestion());
 
 }
 
 function game()
 {
-document.getElementById("start-button").remove();
-console.log("starting quiz");
-populateQuiz(getNextQuestion());
+timeLeft = timeLimit;
+populateQuestionUi(getNextQuestion());
 
-var gameLoop = setInterval(function()
-	{
+var gameInterval = setInterval(function(){
 timeLimit--;
-updateTimeLimit();
-//populate ui with question and yeild until answer is pressed.
-		if(timeLimit <= 0)
-		{
-			clearInterval(gameLoop);
-			endGame();
-		}
+updateTimerElement();
+if(timeLimit <= 0)
+	{
+clearInterval(gameInterval);
+		endGame();
 	}
-	,1000);
-
+},1000);
 }
+
 
 function endGame()
 {
-console.log("game over")
-document.querySelector('h1').textContent = "DONE!";
+var name = prompt("Whats your name:");
+var currentGame = new GameInformation(currentScore,name);
+gameInformation.push(currentGame)
+
+var restartButton = document.createElement('button');
+restartButton.textContent = "Click to restart!";
+restartButton.addEventListener('click',game);
+document.appendChild(restartButton);
 }
 
-function createAnswerElement(qo,index)
-{
-var answerElement = document.createElement("li");
-answerElement.textContent = alphabet.charAt(index).toUpperCase() + ": " + qo.answers[index];
-
-
-return answerElement;
-
-
-}
-
-function createAnswerButtonElement(qo,index)
-{
-
-var answerElement = document.createElement("li");
-var button = document.createElement("button");
-button.appendChild(document.createTextNode(qo.answers[index]));
-button.addEventListener("click",function(){ checkAnswer(qo,index)});
-answerElement.appendChild(button);
-return answerElement;
-}
-
-function populateQuiz(qo)
-{
-
-document.getElementById("question").textContent = qo.question;
-
-for(var i = 0; i < qo.answers.length; i++)
-{
-
-document.getElementById("answers").appendChild(createAnswerElement(qo,i));
-document.getElementById("answer-buttons").appendChild(createAnswerButtonElement(qo,i));
-
-}
-
-
-}
-
-function checkAnswer(qo,selectedAnswer)
-{
-console.log("checking");
-if(qo.correctAnswer == selectedAnswer)
-
-{
-	correctAnswer();
-return true;
-}
-wrongAnswer();
-return false;
-
-}
-function correctAnswer()
-{
-console.log("correct");
-
-}
-function wrongAnswer()
-{
-
-console.log("Wrong");
-
-}
-
-
-document.querySelector('#start-button').addEventListener('click',game);
-
-
+startButton.addEventListener('click',game);

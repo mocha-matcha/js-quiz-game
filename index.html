@@ -4,26 +4,33 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" href="./assets/reset.css">
 	<link rel="stylesheet" href="./assets/style.css">
-	<title>Document</title>
+	<title>JS Quiz</title>
 </head>
 <body>
-<h1 id="timer">Time</h1>
 
-<section id="question-box">
-	<h1 id="question">Question</h1>
-	<div class="flex">
-	<ul id="answers">
-	</ul>
-	</div>
+	<h1>Game</h1>
+
+<section class="flex" id="information">
+<h2>Information</h2>
+<h3 id="timer">Time</h3>
+<h3 id="score">Score</h3>
 </section>
 
-<ul id="answer-buttons">
+<section class="flex" id="question-box">
+<h2 id="question-text"></h2>
+</section>
+
+<section class="flex" id="answer-box">
+<ul id="answer-list">
+
 </ul>
+</section>
 
 
 
 
 <button id="start-button">Start</button>
+
 <script src="./src/script.js"></script>
 </body>
 </html>
