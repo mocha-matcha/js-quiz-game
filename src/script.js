@@ -9,7 +9,8 @@ var answerBox =  document.querySelector("#answer-box");
 var answerList =  document.querySelector("#answer-list");
 var startButton = document.querySelector('#start-button');
 var scoreElement = document.querySelector('#score');
-var timeLeft = 1000;
+var controlButtonsElement = document.querySelector('#play-buttons');
+var timeLeft = 10;
 
 var currentScore = 0;
 
@@ -44,7 +45,7 @@ return Math.floor(Math.random() * (max - min)) + min;
 
 function updateTimerElement()
 {
-timerElement.textContent = timeLimit;
+timerElement.textContent = timeLeft;
 }
 
 function getNextQuestion()
@@ -127,13 +128,23 @@ populateQuestionUi(getNextQuestion());
 
 function game()
 {
+if(localStorage.getItem != null)
+	{gameInformation = JSON.parse(localStorage.getItem('gameInformation'))}
+
+    while (controlButtonsElement.firstChild) {
+        controlButtonsElement.removeChild(controlButtonsElement.firstChild);
+    }
+
 timeLeft = timeLimit;
+	updateTimerElement();
+	currentScore = 0;
 populateQuestionUi(getNextQuestion());
 
 var gameInterval = setInterval(function(){
-timeLimit--;
+timeLeft--;
 updateTimerElement();
-if(timeLimit <= 0)
+updateScore();
+if(timeLeft <= 0)
 	{
 clearInterval(gameInterval);
 		endGame();
@@ -151,7 +162,10 @@ gameInformation.push(currentGame)
 var restartButton = document.createElement('button');
 restartButton.textContent = "Click to restart!";
 restartButton.addEventListener('click',game);
-document.appendChild(restartButton);
+controlButtonsElement.appendChild(restartButton);
+console.log(gameInformation);
+localStorage.setItem("gameInformation",JSON.stringify(gameInformation));
 }
+
 
 startButton.addEventListener('click',game);
