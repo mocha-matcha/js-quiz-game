@@ -1,5 +1,5 @@
 
-var timeLimit = 10;
+var timeLimit = 60;
 var alphabet = 'abcdefghijklmnopqrstuvwxyz';
 
 var timerElement = document.querySelector("#timer");
@@ -10,8 +10,9 @@ var answerList =  document.querySelector("#answer-list");
 var startButton = document.querySelector('#start-button');
 var scoreElement = document.querySelector('#score');
 var controlButtonsElement = document.querySelector('#play-buttons');
-var timeLeft = 10;
-
+var timeLeft = 60;
+var informationButton = document.getElementById('information-button');
+var informationSection = document.getElementById('information-section');
 var currentScore = 0;
 
 
@@ -30,28 +31,27 @@ function Question(question,answers,correctAnswer)
 	}
 
 
-var defaultQuestion = new Question("what is javascript?",["A scripting language","A programming language","A coffee recipe."],0);
+var defaultQuestion = new Question("What is javascript?",["A scripting language","A programming language","A coffee recipe."],0);
 
 
-var questions = [defaultQuestion,new Question("What isnt a primitive",["boolean","object","number","string"],1),new Question("Javascript runs in...",["the browser","a server","both!"],2)]
+var questions = [defaultQuestion,new Question("What isn't a primitive...",["Boolean","Object","Number","String"],1),new Question("Javascript runs in...",["The Browser","A Server","Both!"],2)]
 
 
 var currentQuestion = questions[0];
 function getRandomNumber(max,min)
 {
-return Math.floor(Math.random() * (max - min)) + min;
-
+  return Math.floor(Math.random() * (max - min) + min);
 }
 
 function updateTimerElement()
 {
-timerElement.textContent = timeLeft;
+timerElement.textContent = "Time: " + timeLeft;
 }
 
 function getNextQuestion()
 {
 console.log(questions);
-return questions[getRandomNumber(0,questions.length -1)];
+return questions[getRandomNumber(0,questions.length)];
 }
 
 function clearPopulationUi()
@@ -128,23 +128,20 @@ populateQuestionUi(getNextQuestion());
 
 function game()
 {
-if(localStorage.getItem != null)
-	{gameInformation = JSON.parse(localStorage.getItem('gameInformation'))}
-
     while (controlButtonsElement.firstChild) {
         controlButtonsElement.removeChild(controlButtonsElement.firstChild);
     }
 
-timeLeft = timeLimit;
-	updateTimerElement();
+
 	currentScore = 0;
 populateQuestionUi(getNextQuestion());
-
+timeLeft = timeLimit;
+	updateTimerElement();
 var gameInterval = setInterval(function(){
 timeLeft--;
 updateTimerElement();
 updateScore();
-if(timeLeft <= 0)
+if(timeLeft === 0)
 	{
 clearInterval(gameInterval);
 		endGame();
@@ -167,5 +164,59 @@ console.log(gameInformation);
 localStorage.setItem("gameInformation",JSON.stringify(gameInformation));
 }
 
+function populateInformationUi()
+{
+	var informationInformation = document.getElementById('information-information');
+while(informationInformation.firstChild)
+	{
+		informationInformation.removeChild(informationInformation.firstChild)
+	}
 
+
+for(let i = 0; i < gameInformation.length; i++)
+	{
+	informationInformation.appendChild(getInformationElement(gameInformation[i]));
+	}
+
+}
+
+function getInformationElement(gameInfo)
+{
+var element = document.createElement('div');
+element.setAttribute('class','information');
+
+var nameHeader = document.createElement('h3');
+nameHeader.textContent = "Name: " + gameInfo['name'];
+
+var scoreHeader = document.createElement('h3');
+scoreHeader.textContent = "Score: "+ gameInfo['score'];
+
+element.appendChild(nameHeader);
+element.appendChild(scoreHeader)
+
+return element;
+
+}
+
+function toggleInformation()
+{
+
+populateInformationUi();
+
+if (informationSection.style.display === "none")
+	{
+	informationSection.style.display = "block";
+	}
+else
+	{
+	informationSection.style.display = "none";
+	}
+}
+
+informationButton.addEventListener('click',toggleInformation)
 startButton.addEventListener('click',game);
+
+if(localStorage.getItem != null)
+	{gameInformation = JSON.parse(localStorage.getItem('gameInformation'))}
+
+
